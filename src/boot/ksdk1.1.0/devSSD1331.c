@@ -141,7 +141,6 @@ writeCommand(uint8_t commandByte)
 	 *	Drive DC low (command).
 	 */
 	GPIO_DRV_ClearPinOutput(kSSD1331PinDC);
-
 	payloadBytes[0] = commandByte;
 	status = SPI_DRV_MasterTransferBlocking(0	/* master instance */,
 					NULL		/* spi_master_user_config_t */,
@@ -149,7 +148,6 @@ writeCommand(uint8_t commandByte)
 					(uint8_t * restrict)&inBuffer[0],
 					1		/* transfer size */,
 					1000		/* timeout in microseconds (unlike I2C which is ms) */);
-
 	/*
 	 *	Drive /CS high
 	 */
@@ -159,7 +157,42 @@ writeCommand(uint8_t commandByte)
 }
 
 static int
-writeData(uint8_t commandByte)
+writeCommandMulti(uint8_t *commandByte, uint8_t count)
+{
+	spi_status_t status;
+
+	/*
+	 *	Drive /CS low.
+	 *
+	 *	Make sure there is a high-to-low transition by first driving high, delay, then drive low.
+	 */
+	GPIO_DRV_SetPinOutput(kSSD1331PinCSn);
+	OSA_TimeDelay(10);
+	GPIO_DRV_ClearPinOutput(kSSD1331PinCSn);
+
+	/*
+	 *	Drive DC low (command).
+	 */
+	GPIO_DRV_ClearPinOutput(kSSD1331PinDC);
+	for(int i=0; i<count; i++) {
+	payloadBytes[0] = commandByte[i];
+	status = SPI_DRV_MasterTransferBlocking(0	/* master instance */,
+					NULL		/* spi_master_user_config_t */,
+					(const uint8_t * restrict)&payloadBytes[0],
+					(uint8_t * restrict)&inBuffer[0],
+					1		/* transfer size */,
+					100		/* timeout in microseconds (unlike I2C which is ms) */);
+	}
+	/*
+	 *	Drive /CS high
+	 */
+	GPIO_DRV_SetPinOutput(kSSD1331PinCSn);
+
+	return status;
+}
+
+static int
+writeData(uint16_t commandByte)
 {
 	spi_status_t status;
 
@@ -172,8 +205,7 @@ writeData(uint8_t commandByte)
 	GPIO_DRV_SetPinOutput(kSSD1331PinCSn);
 	OSA_TimeDelay(10);
 	GPIO_DRV_ClearPinOutput(kSSD1331PinCSn);
-
-	payloadBytes[0] = commandByte;
+	payloadBytes[0] = (commandByte >> 8);
 	status = SPI_DRV_MasterTransferBlocking(0	/* master instance */,
 					NULL		/* spi_master_user_config_t */,
 					(const uint8_t * restrict)&payloadBytes[0],
@@ -181,6 +213,13 @@ writeData(uint8_t commandByte)
 					1		/* transfer size */,
 					1000		/* timeout in microseconds (unlike I2C which is ms) */);
 
+	payloadBytes[0] = (commandByte);
+	status = SPI_DRV_MasterTransferBlocking(0	/* master instance */,
+					NULL		/* spi_master_user_config_t */,
+					(const uint8_t * restrict)&payloadBytes[0],
+					(uint8_t * restrict)&inBuffer[0],
+					1		/* transfer size */,
+					1000		/* timeout in microseconds (unlike I2C which is ms) */);
 	/*
 	 *	Drive /CS high
 	 */
@@ -189,6 +228,32 @@ writeData(uint8_t commandByte)
 	return status;
 }
 
+static void FontSizeConvert()
+{
+    switch( chr_size ) {
+        case WIDE:
+            lpx=2;
+            lpy=1;
+            break;
+        case HIGH:
+            lpx=1;
+            lpy=2;
+            break;
+        case WH  :
+            lpx=2;
+            lpy=2;
+            break;
+        case WHx36  :
+            lpx=6;
+            lpy=6;
+            break;
+        case NORMAL:
+        default:
+            lpx=1;
+            lpy=1;
+            break;
+    }
+}
 
 int
 devSSD1331init(void)
@@ -283,59 +348,20 @@ devSSD1331init(void)
 	writeCommand(0x3F);
 	SEGGER_RTT_WriteString(0, "\r\n\tDone with screen clear...\n");
 
-	// // Command to enter draw rectangle mode
-	// writeCommand(0x22);
-	// // Set start coordinates
-	// writeCommand(0x00);
-	// writeCommand(0x00);
-
-	// // Set end coordinates
-	// writeCommand(0x7f);
-	// writeCommand(0x3f); 
-	
-	// // Set outline to green
-	// writeCommand(0x00);
-	// writeCommand(0xff);
-	// writeCommand(0x00); 
-
-	// // Set fill to green
-	// writeCommand(0x00);
-	// writeCommand(0xff);
-	// writeCommand(0x00); 
-
-	// // Adjust contrast to brighten the green
-	// writeCommand(0x82);
-	// // Set green to max contrast
-	// writeCommand(0xff);
-
-	// // Set red and blue to min contrast
-	// writeCommand(0x81);
-	// writeCommand(0x00);
-	// writeCommand(0x83);
-	// writeCommand(0x00);
-
-	// SEGGER_RTT_WriteString(0, "\r\n\tDone with draw rectangle...\n");
-
 	chr_size = HIGH;
-	// locate(1,10);
-	// _putc(33);
-	// locate(10,10);
-	// _putc(34);
-	locate(1,10);
-	_putc(83);
-	locate(8,10);
-	_putc(84);
-	locate(16,10);
-	_putc(69);
-	locate(24,10);
-	_putc(80);
-	locate(32,10);
-	_putc(83);
-	locate(40,10);
-	_putc(58);
-
-	// locate(1, 10);
-	// _putc();
+	FontSizeConvert();
+	locate(3,10);
+	// write_string(1, 10, "STEPS:");
+	// locate(3,30);
+	// write_string(1, 30, "9872");
+	// locate(3,30);
+	// write_string(1, 30, "9873");
+	count();
+	// int val = 200;
+	// int digitsCurrent = 3;
+	// int* splitCurrent = splitInt(val);
+	// locate(3,30);
+	// write_int(3, 30, splitCurrent,digitsCurrent);
 	
 	return 0;
 }
@@ -372,11 +398,11 @@ void PutChar(uint8_t column,uint8_t row, int value)
 			char_y = 0;
 		}
 	}
-	int i,j,w,lpx,lpy,k,l,xw;
+	int i,j,w,k,l,xw;
 	unsigned char Temp=0;
 	j = 0; i = 0;
 	w = X_width;
-	FontSizeConvert(&lpx, &lpy);
+	// FontSizeConvert(&lpx, &lpy);
 	xw = X_width;
 	
 	for(i=0; i<xw; i++) {
@@ -391,7 +417,7 @@ void PutChar(uint8_t column,uint8_t row, int value)
 			}
 		}
 	}
-	FontSizeConvert(&lpx, &lpy);
+	// FontSizeConvert(&lpx, &lpy);
 	char_x += (w*lpx);
 }
 
@@ -473,4 +499,4 @@ void FontSizeConvert(int *lpx,int *lpy)
             *lpy=1;
             break;
     }
-}
+}

@@ -12,6 +12,8 @@
 #define Y_height 8 
 
 // Screen Settings
+#define WIDTH   96       // Max X axial direction in screen
+#define HEIGHT  64      // Max Y axial direction in screen
 #define width   96-1       // Max X axial direction in screen
 #define height  64-1       // Max Y axial direction in screen
 #define Set_Column_Address  0x15
@@ -57,6 +59,11 @@ typedef enum
 	kSSD1331CommandVCOMH		= 0xBE,
 } SSD1331Commands;
 
+
+static int lpx=1;
+static int lpy=1;
+// static void FontSizeConvert();
+
 uint8_t chr_size;
 uint8_t char_x;
 uint8_t char_y;
@@ -66,9 +73,16 @@ uint16_t BGround_Color; // background color
 int	devSSD1331init(void);
 void PutChar(uint8_t column,uint8_t row, int value);
 void pixel(uint8_t x,uint8_t y,char Color);
-void FontSizeConvert(int *lpx,int *lpy);
 int _putc( int c );
 void locate(uint8_t column, uint8_t row);
 uint16_t toRGB(uint16_t R,uint16_t G,uint16_t B);
 void foreground(uint16_t color);
 void background(uint16_t color);
+void write_string(uint8_t x, uint8_t y, const char *pString);
+void write_int(uint8_t x, uint8_t y, int* pString, int size);
+void clearScreen(uint8_t x_start, uint8_t y_start,uint8_t x_end,uint8_t y_end);
+
+bool compareInt(int val1, int val2);
+void count();
+unsigned int countDigits(unsigned int i);
+void splitInt(int *arr, int num);
