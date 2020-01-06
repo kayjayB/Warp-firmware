@@ -351,10 +351,10 @@ devSSD1331init(void)
 	chr_size = HIGH;
 	FontSizeConvert();
 	locate(3,10);
-	// write_string(1, 10, "STEPS:");
+	write_string(1, 10, "STEPS:");
 	// locate(3,30);
 	// write_string(1, 30, "9872");
-	// locate(3,30);
+	locate(3,30);
 	// write_string(1, 30, "9873");
 	count();
 	// int val = 200;
@@ -438,39 +438,39 @@ void background(uint16_t color)
 
 void pixel(uint8_t x,uint8_t y, char Color)
 {
-	// if (Color)
-	// {
-	// 	unsigned char cmd[7]= {Set_Column_Address,0x00,0x00,Set_Row_Address,0x00,0x00};
-
-	// 	if ((x>width)||(y>height)) return ;
-
-	// 	cmd[1] = x;
-	// 	cmd[2] = x;
-	// 	cmd[4] = y;
-	// 	cmd[5] = y;
-	// 	writeCommandMulti(cmd,6);
-
-	// 	uint16_t white = toRGB(255,255,255);
-
-	// 	writeData(white);
-	// }
-	// else
-	// 	return;
-
-	uint16_t white = toRGB(255,255,255);
-	uint16_t black = toRGB(0,0,0);
-	unsigned char cmd[7]= {Set_Column_Address,0x00,0x00,Set_Row_Address,0x00,0x00};
-    if ((x>width)||(y>height)) return ;
-    cmd[1] = x;
-    cmd[2] = x;
-    cmd[4] = y;
-    cmd[5] = y;
-    writeCommandMulti(cmd, 6);
-
 	if (Color)
-    	writeData(white);
+	{
+		unsigned char cmd[7]= {Set_Column_Address,0x00,0x00,Set_Row_Address,0x00,0x00};
+
+		if ((x>width)||(y>height)) return ;
+
+		cmd[1] = x;
+		cmd[2] = x;
+		cmd[4] = y;
+		cmd[5] = y;
+		writeCommandMulti(cmd,6);
+
+		uint16_t white = toRGB(255,255,255);
+
+		writeData(white);
+	}
 	else
-		writeData(black);
+		return;
+
+	// uint16_t white = toRGB(255,255,255);
+	// uint16_t black = toRGB(0,0,0);
+	// unsigned char cmd[7]= {Set_Column_Address,0x00,0x00,Set_Row_Address,0x00,0x00};
+    // if ((x>width)||(y>height)) return ;
+    // cmd[1] = x;
+    // cmd[2] = x;
+    // cmd[4] = y;
+    // cmd[5] = y;
+    // writeCommandMulti(cmd, 6);
+
+	// if (Color)
+    // 	writeData(white);
+	// else
+	// 	writeData(black);
 }
 
 void write_string(uint8_t x, uint8_t y, const char *pString)
@@ -528,6 +528,7 @@ void count()
 				int splitCurrent1[10];
 				splitInt(splitCurrent1,val);
 				locate(3,30);
+				clearScreen(char_x, 30 ,char_x+(X_width*lpx),30+Y_height*lpy);
 				write_int(3, 30, splitCurrent1,digitsCurrent);
 			}
 			else
@@ -543,6 +544,8 @@ void count()
 					{
 						locate(3,30);
 						char_x += (j)*(X_width*lpx);
+						clearScreen(char_x, 30 ,char_x+(X_width*lpx),30+Y_height*lpy);
+
 						int charAscii = splitCurrent[j]+48;
 						PutChar(3,30,charAscii);
 					}
