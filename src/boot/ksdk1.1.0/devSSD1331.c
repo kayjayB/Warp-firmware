@@ -438,65 +438,160 @@ void background(uint16_t color)
 
 void pixel(uint8_t x,uint8_t y, char Color)
 {
-    unsigned char cmd[7]= {Set_Column_Address,0x00,0x00,Set_Row_Address,0x00,0x00};
-	// unsigned char cmd[5]= {0x00,0x00,0x00,0x00};
-    if ((x>width)||(y>height)) return ;
-    // cmd[0] = (unsigned char)x;
-    // cmd[1] = (unsigned char)y;
-    // cmd[2] = (unsigned char)x;
-    // cmd[3] = (unsigned char)y;
-
-	cmd[1] = x;
-    cmd[2] = width;
-    cmd[4] = y;
-    cmd[5] = height;
-
-	for (int i=0; i<6; i++)
-	{
-		writeCommand(cmd[i]);
-	}
-	// writeCommand(kSSD1331CommandDRAWLINE);
-	// for (int i=0; i<4; i++)
+	// if (Color)
 	// {
-	// 	writeCommand(cmd[i]);
+	// 	unsigned char cmd[7]= {Set_Column_Address,0x00,0x00,Set_Row_Address,0x00,0x00};
+
+	// 	if ((x>width)||(y>height)) return ;
+
+	// 	cmd[1] = x;
+	// 	cmd[2] = x;
+	// 	cmd[4] = y;
+	// 	cmd[5] = y;
+	// 	writeCommandMulti(cmd,6);
+
+	// 	uint16_t white = toRGB(255,255,255);
+
+	// 	writeData(white);
 	// }
+	// else
+	// 	return;
+
 	uint16_t white = toRGB(255,255,255);
 	uint16_t black = toRGB(0,0,0);
+	unsigned char cmd[7]= {Set_Column_Address,0x00,0x00,Set_Row_Address,0x00,0x00};
+    if ((x>width)||(y>height)) return ;
+    cmd[1] = x;
+    cmd[2] = x;
+    cmd[4] = y;
+    cmd[5] = y;
+    writeCommandMulti(cmd, 6);
+
 	if (Color)
+    	writeData(white);
+	else
+		writeData(black);
+}
+
+void write_string(uint8_t x, uint8_t y, const char *pString)
+{
+	// int lpx,lpy;
+	// FontSizeConvert(&lpx, &lpy);
+    while (*pString != '\0') {       
+        if (x > (WIDTH - lpx / 2)) {
+            x = 0;
+            y += lpy;
+            if (y > (HEIGHT - lpy)) {
+                y = x = 0;
+            }
+        }
+		int charAscii = (int)*pString;
+        PutChar(x, y, charAscii);
+        x += lpx / 2;
+        pString++;
+    }
+}
+
+void write_int(uint8_t x, uint8_t y, int* pString, int size)
+{
+	// int lpx,lpy;
+	// FontSizeConvert(&lpx, &lpy);
+    for (int i=0; i<size;i++) 
+	{       
+		int charAscii = pString[i]+48;
+        PutChar(x, y, charAscii);
+        x += lpx / 2;
+    }
+}
+
+bool compareInt(int val1, int val2)
+{
+	if (val1 == val2)
+		return true;
+
+	return false;
+}
+
+void count()
+{
+	int val;
+	int prevVal=8;
+	for (int i=9;i<102;i++)
 	{
-		writeData(((white >> 8)));
-    	writeData((white));
-	}
-	else 
-	{
-		writeData((black >> 8));
-    	writeData((black));
+		val = i;
+		if (!compareInt(val, prevVal))
+		{
+			unsigned int digitsCurrent=countDigits(val);
+			unsigned int digitsOld=countDigits(prevVal);
+			if (!compareInt(digitsCurrent, digitsOld)) // If the length of the numbers are different, rewrite the whole string
+			{
+				int splitCurrent1[10];
+				splitInt(splitCurrent1,val);
+				locate(3,30);
+				write_int(3, 30, splitCurrent1,digitsCurrent);
+			}
+			else
+			{
+				int splitCurrent[10];
+				int splitPrev[10];
+				splitInt(splitCurrent,val);
+				splitInt(splitPrev, prevVal);
+
+				for (unsigned int j=0;j<digitsCurrent; j++)
+				{
+					if (!compareInt(splitCurrent[j], splitPrev[j]))
+					{
+						locate(3,30);
+						char_x += (j)*(X_width*lpx);
+						int charAscii = splitCurrent[j]+48;
+						PutChar(3,30,charAscii);
+					}
+				}
+			}
+		}
+		prevVal = i;
 	}
 }
 
-void FontSizeConvert(int *lpx,int *lpy)
+
+void clearScreen(uint8_t x_start, uint8_t y_start,uint8_t x_end,uint8_t y_end)
 {
-    switch( chr_size ) {
-        case WIDE:
-            *lpx=2;
-            *lpy=1;
-            break;
-        case HIGH:
-            *lpx=1;
-            *lpy=2;
-            break;
-        case WH  :
-            *lpx=2;
-            *lpy=2;
-            break;
-        case WHx36  :
-            *lpx=6;
-            *lpy=6;
-            break;
-        case NORMAL:
-        default:
-            *lpx=1;
-            *lpy=1;
-            break;
-    }
-}
+	writeCommand(kSSD1331CommandCLEAR);
+	writeCommand(x_start);
+	writeCommand(y_start);
+	writeCommand(x_end);
+	writeCommand(y_end);
+}
+
+unsigned int countDigits(unsigned int i) 
+{
+	unsigned int ret=1;
+	while (i/=10) ret++;
+	return ret;
+}
+
+
+
+void splitInt(int *arr, int num)
+{
+	int temp,factor=1;
+	// static int arr[10];
+	int counter =0;
+	temp=num;
+
+	while(temp)
+	{
+		temp=temp/10;
+		factor = factor*10;
+	}
+
+	while(factor>1){
+		factor = factor/10;
+		arr[counter]= num/factor;
+		num = num % factor;
+		counter++;
+
+	}
+
+	// return arr;
+}
