@@ -2,6 +2,21 @@
  *	See https://github.com/adafruit/Adafruit-SSD1331-OLED-Driver-Library-for-Arduino for the Arduino driver.
  */
 
+// Internal Font size settings
+#define NORMAL  0
+#define WIDE    1
+#define HIGH    2
+#define WH      3
+#define WHx36   4
+#define X_width 6 
+#define Y_height 8 
+
+// Screen Settings
+#define width   96-1       // Max X axial direction in screen
+#define height  64-1       // Max Y axial direction in screen
+#define Set_Column_Address  0x15
+#define Set_Row_Address     0x75
+
 typedef enum
 {
 	kSSD1331ColororderRGB		= 1,
@@ -42,4 +57,18 @@ typedef enum
 	kSSD1331CommandVCOMH		= 0xBE,
 } SSD1331Commands;
 
+uint8_t chr_size;
+uint8_t char_x;
+uint8_t char_y;
+uint16_t Char_Color;    // text color
+uint16_t BGround_Color; // background color
+
 int	devSSD1331init(void);
+void PutChar(uint8_t column,uint8_t row, int value);
+void pixel(uint8_t x,uint8_t y,char Color);
+void FontSizeConvert(int *lpx,int *lpy);
+int _putc( int c );
+void locate(uint8_t column, uint8_t row);
+uint16_t toRGB(uint16_t R,uint16_t G,uint16_t B);
+void foreground(uint16_t color);
+void background(uint16_t color);
