@@ -55,7 +55,7 @@
 #include "SEGGER_RTT.h"
 #include "warp.h"
 
-//#define WARP_FRDMKL03
+#define WARP_FRDMKL03
 
 /*
 *	Comment out the header file to disable devices
@@ -80,6 +80,8 @@
 //#include "devRV8803C7.h"
 #else
 #	include "devMMA8451Q.h"
+#	include "devSSD1331.h"
+#	include "devINA219.h"
 #endif
 
 #define WARP_BUILD_ENABLE_SEGGER_RTT_PRINTF
@@ -109,6 +111,10 @@ volatile WarpI2CDeviceState			deviceBMX055magState;
 
 #ifdef WARP_BUILD_ENABLE_DEVMMA8451Q
 volatile WarpI2CDeviceState			deviceMMA8451QState;
+#endif
+
+#ifdef WARP_BUILD_ENABLE_DEVINA219
+volatile WarpI2CDeviceState			deviceINA219State;
 #endif
 
 #ifdef WARP_BUILD_ENABLE_DEVLPS25H
@@ -1235,7 +1241,12 @@ main(void)
 #endif
 
 #ifdef WARP_BUILD_ENABLE_DEVMMA8451Q
-	initMMA8451Q(	0x1C	/* i2cAddress */,	&deviceMMA8451QState	);
+	initMMA8451Q(	0x1D	/* i2cAddress */,	&deviceMMA8451QState	);
+#endif	
+
+#ifdef WARP_BUILD_ENABLE_DEVINA219
+	initINA219(	0x40	/* i2cAddress */,	&deviceINA219State	);
+	// enableI2Cpins(menuI2cPullupValue);
 #endif	
 
 #ifdef WARP_BUILD_ENABLE_DEVLPS25H
@@ -1358,6 +1369,7 @@ main(void)
 		OSA_TimeDelay(gWarpMenuPrintDelayMilliseconds);
 		SEGGER_RTT_WriteString(0, "\r[  \t\t\t\t      Cambridge / Physcomplab   \t\t\t\t  ]\n\n");
 		OSA_TimeDelay(gWarpMenuPrintDelayMilliseconds);
+		devSSD1331init();
 
 #ifdef WARP_BUILD_ENABLE_SEGGER_RTT_PRINTF
 		SEGGER_RTT_printf(0, "\r\tSupply=%dmV,\tDefault Target Read Register=0x%02x\n",
@@ -1479,6 +1491,13 @@ main(void)
 				SEGGER_RTT_WriteString(0, "\r\t- '5' MMA8451Q			(0x00--0x31): 1.95V -- 3.6V\n");
 				#else
 				SEGGER_RTT_WriteString(0, "\r\t- '5' MMA8451Q			(0x00--0x31): 1.95V -- 3.6V (compiled out) \n");
+#endif
+				OSA_TimeDelay(gWarpMenuPrintDelayMilliseconds);
+
+#ifdef WARP_BUILD_ENABLE_DEVINA219
+				SEGGER_RTT_WriteString(0, "\r\t- 'l' INA219			(0x00--0x31): 1.95V -- 3.6V\n");
+				#else
+				SEGGER_RTT_WriteString(0, "\r\t- 'l' INA219			(0x00--0x31): 1.95V -- 3.6V (compiled out) \n");
 #endif
 				OSA_TimeDelay(gWarpMenuPrintDelayMilliseconds);
 
@@ -1721,6 +1740,14 @@ main(void)
 					{
 						menuTargetSensor = kWarpSensorAS7263;
 						menuI2cDevice = &deviceAS7263State;
+						break;
+					}
+#endif
+#ifdef WARP_BUILD_ENABLE_DEVINA219
+					case 'l':
+					{
+						menuTargetSensor = kWarpSensorINA219;
+						menuI2cDevice = &deviceINA219State;
 						break;
 					}
 #endif
@@ -2503,6 +2530,11 @@ printAllSensors(bool printHeadersAndCalibration, bool hexModeFlag, int menuDelay
 					i2cPullupValue
 					);
 	#endif
+	#ifdef WARP_BUILD_ENABLE_DEVINA219
+	numberOfConfigErrors += configureSensorINA219(kWarpSensorOutputRegisterINA219_SHUNT,
+					i2cPullupValue
+					);
+	#endif
 	#ifdef WARP_BUILD_ENABLE_DEVMAG3110
 	numberOfConfigErrors += configureSensorMAG3110(	0x00,/*	Payload: DR 000, OS 00, 80Hz, ADC 1280, Full 16bit, standby mode to set up register*/
 					0xA0,/*	Payload: AUTO_MRST_EN enable, RAW value without offset */
@@ -2598,6 +2630,10 @@ printAllSensors(bool printHeadersAndCalibration, bool hexModeFlag, int menuDelay
 		SEGGER_RTT_WriteString(0, " MMA8451 x, MMA8451 y, MMA8451 z,");
 		OSA_TimeDelay(gWarpMenuPrintDelayMilliseconds);
 		#endif
+		#ifdef WARP_BUILD_ENABLE_DEVINA219
+		SEGGER_RTT_WriteString(0, " INA219 shuntV"); //, INA219 busV, INA219 power, INA219 current");
+		OSA_TimeDelay(gWarpMenuPrintDelayMilliseconds);
+		#endif
 		#ifdef WARP_BUILD_ENABLE_DEVMAG3110
 		SEGGER_RTT_WriteString(0, " MAG3110 x, MAG3110 y, MAG3110 z, MAG3110 Temp,");
 		OSA_TimeDelay(gWarpMenuPrintDelayMilliseconds);
@@ -2633,43 +2669,49 @@ printAllSensors(bool printHeadersAndCalibration, bool hexModeFlag, int menuDelay
 	}
 
 
-	while(1)
+while(1)
 	{
 		#ifdef WARP_BUILD_ENABLE_SEGGER_RTT_PRINTF
-		SEGGER_RTT_printf(0, "%u, %d, %d,", readingCount, RTC->TSR, RTC->TPR);
+		SEGGER_RTT_printf(0, "%u, %d", readingCount, RTC->TSR); //, RTC->TPR);
 		#endif
 
-		#ifdef WARP_BUILD_ENABLE_DEVAMG8834
-		printSensorDataAMG8834(hexModeFlag);
-		#endif
+		// #ifdef WARP_BUILD_ENABLE_DEVAMG8834
+		// printSensorDataAMG8834(hexModeFlag);
+		// #endif
 		#ifdef WARP_BUILD_ENABLE_DEVMMA8451Q
 		printSensorDataMMA8451Q(hexModeFlag);
 		#endif
-		#ifdef WARP_BUILD_ENABLE_DEVMAG3110
-		printSensorDataMAG3110(hexModeFlag);
-		#endif
-		#ifdef WARP_BUILD_ENABLE_DEVL3GD20H
-		printSensorDataL3GD20H(hexModeFlag);
-		#endif
-		#ifdef WARP_BUILD_ENABLE_DEVBME680
-		printSensorDataBME680(hexModeFlag);
-		#endif
-		#ifdef WARP_BUILD_ENABLE_DEVBMX055
-		printSensorDataBMX055accel(hexModeFlag);
-		printSensorDataBMX055mag(hexModeFlag);
-		printSensorDataBMX055gyro(hexModeFlag);
-		#endif
-		#ifdef WARP_BUILD_ENABLE_DEVCCS811
-		printSensorDataCCS811(hexModeFlag);
-		#endif
-		#ifdef WARP_BUILD_ENABLE_DEVHDC1000
-		printSensorDataHDC1000(hexModeFlag);
-		#endif
-	
+		// #ifdef WARP_BUILD_ENABLE_DEVINA219
+		// printSensorDataINA219(hexModeFlag);
+		// #endif
+		// #ifdef WARP_BUILD_ENABLE_DEVMAG3110
+		// printSensorDataMAG3110(hexModeFlag);
+		// #endif
+		// #ifdef WARP_BUILD_ENABLE_DEVL3GD20H
+		// printSensorDataL3GD20H(hexModeFlag);
+		// #endif
+		// #ifdef WARP_BUILD_ENABLE_DEVBME680
+		// printSensorDataBME680(hexModeFlag);
+		// #endif
+		// #ifdef WARP_BUILD_ENABLE_DEVBMX055
+		// printSensorDataBMX055accel(hexModeFlag);
+		// printSensorDataBMX055mag(hexModeFlag);
+		// printSensorDataBMX055gyro(hexModeFlag);
+		// #endif
+		// #ifdef WARP_BUILD_ENABLE_DEVCCS811
+		// printSensorDataCCS811(hexModeFlag);
+		// #endif
+		// #ifdef WARP_BUILD_ENABLE_DEVHDC1000
+		// printSensorDataHDC1000(hexModeFlag);
+		// #endif
 
 		#ifdef WARP_BUILD_ENABLE_SEGGER_RTT_PRINTF
-		SEGGER_RTT_printf(0, " %d, %d, %d\n", RTC->TSR, RTC->TPR, numberOfConfigErrors);
-		#endif
+		SEGGER_RTT_printf(0, "\n");
+		#endif	
+
+		// #ifdef WARP_BUILD_ENABLE_SEGGER_RTT_PRINTF
+		// SEGGER_RTT_printf(0, " %d, %d, %d\n", RTC->TSR, RTC->TPR, numberOfConfigErrors);
+		// #endif
 
 		if (menuDelayBetweenEachRun > 0)
 		{
@@ -2866,6 +2908,34 @@ repeatRegisterReadForDeviceAndAddress(WarpSensorDevice warpSensorDevice, uint8_t
 					);
 			#else
 			SEGGER_RTT_WriteString(0, "\r\n\tADXL362 Read Aborted. Device Disabled :(");
+#endif
+			break;
+		}
+
+		case kWarpSensorINA219:
+		{
+			/*
+			 *	MMA8451Q: VDD 1.95--3.6
+			 */
+#ifdef WARP_BUILD_ENABLE_DEVINA219
+			loopForSensor(	"\r\nINA219:\n\r",		/*	tagString			*/
+					&readSensorRegisterINA219,	/*	readSensorRegisterFunction	*/
+					&deviceINA219State,		/*	i2cDeviceState			*/
+					NULL,				/*	spiDeviceState			*/
+					baseAddress,			/*	baseAddress			*/
+					0x00,				/*	minAddress			*/
+					0x31,				/*	maxAddress			*/
+					repetitionsPerAddress,		/*	repetitionsPerAddress		*/
+					chunkReadsPerAddress,		/*	chunkReadsPerAddress		*/
+					spinDelay,			/*	spinDelay			*/
+					autoIncrement,			/*	autoIncrement			*/
+					sssupplyMillivolts,		/*	sssupplyMillivolts		*/
+					referenceByte,			/*	referenceByte			*/
+					adaptiveSssupplyMaxMillivolts,	/*	adaptiveSssupplyMaxMillivolts	*/
+					chatty				/*	chatty				*/
+					);
+			#else
+			SEGGER_RTT_WriteString(0, "\r\n\tnINA219 Read Aborted. Device Disabled :(");
 #endif
 			break;
 		}
