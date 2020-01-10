@@ -61,14 +61,14 @@
 *	Comment out the header file to disable devices
 */
 #ifndef WARP_FRDMKL03
-#	include "devBMX055.h"
-#	include "devMMA8451Q.h"
-#	include "devHDC1000.h"
-#	include "devMAG3110.h"
-#	include "devL3GD20H.h"
-#	include "devBME680.h"
-#	include "devCCS811.h"
-#	include "devAMG8834.h"
+// #	include "devBMX055.h"
+// #	include "devMMA8451Q.h"
+// #	include "devHDC1000.h"
+// #	include "devMAG3110.h"
+// #	include "devL3GD20H.h"
+// #	include "devBME680.h"
+// #	include "devCCS811.h"
+// #	include "devAMG8834.h"
 //#include "devTCS34725.h"
 //#include "devSI4705.h"
 //#include "devSI7021.h"
@@ -81,7 +81,8 @@
 #else
 #	include "devMMA8451Q.h"
 #	include "devSSD1331.h"
-#	include "devINA219.h"
+#	include "pedometer.h"
+// #	include "devINA219.h"
 #endif
 
 #define WARP_BUILD_ENABLE_SEGGER_RTT_PRINTF
@@ -1152,8 +1153,7 @@ main(void)
 	warpBootDate.second	= 0U;
 	RTC_DRV_SetDatetime(0, &warpBootDate);
 
-
-
+	calibratePedometer();
 	/*
 	 *	Setup Power Manager Driver
 	 */
@@ -1395,7 +1395,8 @@ main(void)
 		SEGGER_RTT_WriteString(0, "\r\n\n\t\tWARNING: SEGGER_RTT_printf disabled in this firmware build.\n\t\tOnly showing output that does not require value formatting.\n\n");
 		OSA_TimeDelay(gWarpMenuPrintDelayMilliseconds);
 #endif
-
+		SEGGER_RTT_WriteString(0, "Done booting\n");
+		pedometer();
 		SEGGER_RTT_WriteString(0, "\rSelect:\n");
 		OSA_TimeDelay(gWarpMenuPrintDelayMilliseconds);
 		SEGGER_RTT_WriteString(0, "\r- 'a': set default sensor.\n");
@@ -2503,7 +2504,7 @@ main(void)
 		}
 	}
 
-	return 0;
+ 	return 0;
 }
 
 
