@@ -196,6 +196,12 @@ readSensorRegisterMMA8451Q(uint8_t deviceRegister, int numberOfBytes)
 	return kWarpStatusOK;
 }
 
+/*
+Function: getSensorDataMMA8451Q 
+* Obtain a sample of x,y,z acceleration
+* acceleration: 1x3 array
+* success: Boolean flag indicating whether the I2C read was performed successfully
+*/
 bool
 getSensorDataMMA8451Q(int16_t* acceleration)
 {
