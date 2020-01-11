@@ -59,12 +59,12 @@ uint8_t char_y;
 uint16_t displayedNumber = 0;
 
 int	devSSD1331init(void);
-void PutChar(int value);
-void pixel(uint8_t x,uint8_t y,char Color);
+void writeChar(int value);
+void pixel(uint8_t x,uint8_t y,char colour);
 void locate(uint8_t column, uint8_t row);
 uint16_t toRGB(uint16_t R,uint16_t G,uint16_t B);
-void write_string(const char *pString);
-void write_int(int* pString, int size);
+void writeString(const char *pString);
+void writeInt(int* pString, int size);
 void clearScreen(uint8_t x_start, uint8_t y_start,uint8_t x_end,uint8_t y_end);
 
 void display(uint16_t val, uint16_t prevVal);

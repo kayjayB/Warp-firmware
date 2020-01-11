@@ -249,6 +249,11 @@ static void FontSizeConvert()
     }
 }
 
+/*
+Function: devSSD1331init 
+* Initilise the OLED display
+* Write the initial text to the display (Steps:)
+*/
 int
 devSSD1331init(void)
 {
@@ -287,7 +292,7 @@ devSSD1331init(void)
 	 */
 	writeCommand(kSSD1331CommandDISPLAYOFF);	// 0xAE
 	writeCommand(kSSD1331CommandSETREMAP);		// 0xA0
-	writeCommand(0x72);				// RGB Color
+	writeCommand(0x72);				// RGB colour
 	writeCommand(kSSD1331CommandSTARTLINE);		// 0xA1
 	writeCommand(0x0);
 	writeCommand(kSSD1331CommandDISPLAYOFFSET);	// 0xA2
@@ -345,25 +350,35 @@ devSSD1331init(void)
 	chr_size = HIGH;
 	FontSizeConvert();
 	locate(3,10);
-	write_string("STEPS:");
+	writeString("STEPS:");
 
 	locate(3,30);
 	uint16_t value = 2;
 	uint16_t value2 = 3;
 	display(value, value2);
 	SEGGER_RTT_WriteString(0, "\r\n Should be displayed\n");
-	// write_int(0,1);
+	// writeInt(0,1);
 	// count();
 
 	// int val = 200;
 	// int digitsCurrent = 3;
 	// int* splitCurrent = splitInt(val);
 	// locate(3,30);
-	// write_int(3, 30, splitCurrent,digitsCurrent);
+	// writeInt(3, 30, splitCurrent,digitsCurrent);
 	
 	return 0;
 }
 
+/*
+Function: toRGB 
+* Convert (R,G,B) to 0xRGB
+* R: Red component in integer form
+* G: Green component in integer form
+* B: Blue component in integer form
+* returns - c: Hex form of the colour
+This function was adapted from: 
+https://os.mbed.com/users/star297/code/ssd1331/docs/tip/ssd1331_8h_source.html
+*/
 uint16_t toRGB(uint16_t R,uint16_t G,uint16_t B)
 {  
     uint16_t c;
@@ -375,7 +390,14 @@ uint16_t toRGB(uint16_t R,uint16_t G,uint16_t B)
     return c;
 }
 
-void PutChar(int value)
+/*
+Function: writeChar 
+* Writes a character to the OLED diplay
+* value: ASCII value of the character to be written to the display
+This function was adapted from: 
+https://os.mbed.com/users/star297/code/ssd1331/docs/tip/ssd1331_8h_source.html
+*/
+void writeChar(int value)
 {
 	uint8_t chMode = 0;
 	if(value == '\n') {
@@ -411,15 +433,32 @@ void PutChar(int value)
 	char_x += (w*lpx);
 }
 
+/*
+Function: locate 
+* Sets the position on the display
+* column: Column index
+* row: Row index 
+*/
 void locate(uint8_t column, uint8_t row)
 {
     char_x  = column;
     char_y = row;
 }
 
-void pixel(uint8_t x,uint8_t y, char Color)
+/*
+Function: pixel 
+* Writes a single pixel to the OLED diplay
+* x: X location where the pixel must be placed
+* y: Y location where the pixel must be placed
+* colour: Flag indicating whether the current pixel is background or foreground. 
+*		  Only the foreground pixels are drawn to increase the speed of writing
+*		  to the display
+This function was adapted from: 
+https://os.mbed.com/users/star297/code/ssd1331/docs/tip/ssd1331_8h_source.html
+*/
+void pixel(uint8_t x,uint8_t y, char colour)
 {
-	if (Color)
+	if (colour)
 	{
 		unsigned char cmd[7]= {kSSD1331CommandSETCOLUMN,0x00,0x00,kSSD1331CommandSETROW,0x00,0x00};
 
@@ -437,50 +476,62 @@ void pixel(uint8_t x,uint8_t y, char Color)
 	}
 	else
 		return;
-
-	// uint16_t white = toRGB(255,255,255);
-	// uint16_t black = toRGB(0,0,0);
-	// unsigned char cmd[7]= {kSSD1331CommandSETCOLUMN,0x00,0x00,kSSD1331CommandSETROW,0x00,0x00};
-    // if ((x>width)||(y>height)) return ;
-    // cmd[1] = x;
-    // cmd[2] = x;
-    // cmd[4] = y;
-    // cmd[5] = y;
-    // writeCommandMulti(cmd, 6);
-
-	// if (Color)
-    // 	writeData(white);
-	// else
-	// 	writeData(black);
 }
 
-void write_string(const char *pString)
+/*
+Function: writeString 
+* Writes a string to the OLED diplay
+* pString: Character array containing the string to be written
+This function was adapted from: 
+https://os.mbed.com/users/star297/code/ssd1331/docs/tip/ssd1331_8h_source.html
+*/
+void writeString(const char *pString)
 {
 	// int lpx,lpy;
 	// FontSizeConvert(&lpx, &lpy);
     while (*pString != '\0') {       
 		int charAscii = (int)*pString;
-        PutChar(charAscii);
+        writeChar(charAscii);
         pString++;
     }
 }
 
-void write_int(int* pString, int size)
+/*
+Function: writeInt 
+* Writes a multi-digit number to the OLED diplay
+* pString: Array where each element contains one digit of the number
+* 		   eg. Number: 103 -> pString=[1,0,3]
+*/
+void writeInt(int* pString, int size)
 {
-	// int lpx,lpy;
-	// FontSizeConvert(&lpx, &lpy);
     for (int i=0; i<size;i++) 
 	{       
 		int charAscii = pString[i]+48;
-        PutChar(charAscii);
+        writeChar(charAscii);
     }
 }
 
+/*
+Function: getCurrentDisplay 
+* Get the number currently displayed on the screen
+* returns - displayedNumber: Number on the screen
+*/
 int getCurrentDisplay()
 {
 	return displayedNumber;
 }
 
+/*
+Function: display 
+* Function to write a number to the OLED
+* Overwriting the entire number each time was found to be very slow
+* To overcome this, only the digits that are different between the current number and the
+* previous number are displayed.
+* If the two numbers are different lengths, rewrite the full number, as the position of the digits
+* will need to change on the OLED
+* If the two numbers are the same length, 
+* pString: Character array containing the string to be written
+*/
 void display(uint16_t val, uint16_t prevVal)
 {
 	if (val != prevVal)
@@ -493,11 +544,10 @@ void display(uint16_t val, uint16_t prevVal)
 			splitInt(splitCurrent1,val);
 			locate(3,30);
 			clearScreen(char_x, 30 ,char_x+(X_width*lpx),30+Y_height*lpy);
-			write_int(splitCurrent1,digitsCurrent);
+			writeInt(splitCurrent1,digitsCurrent);
 		}
 		else
 		{
-			// SEGGER_RTT_WriteString(0, "\r\n\t same length \n");
 			int splitCurrent[6];
 			int splitPrev[6];
 			splitInt(splitCurrent, val);
@@ -507,13 +557,12 @@ void display(uint16_t val, uint16_t prevVal)
 			{
 				if (splitCurrent[j]!= splitPrev[j])
 				{
-					// SEGGER_RTT_WriteString(0, "\r\n\t not equal. printing \n");
 					locate(3,30);
 					char_x += (j)*(X_width*lpx);
 					clearScreen(char_x, 30 ,char_x+(X_width*lpx),30+Y_height*lpy);
 
 					int charAscii = splitCurrent[j]+48;
-					PutChar(charAscii);
+					writeChar(charAscii);
 				}
 			}
 		}
@@ -521,7 +570,14 @@ void display(uint16_t val, uint16_t prevVal)
 	displayedNumber = val;
 }
 
-
+/*
+Function: clearScreen 
+* Clears portions of the display
+* x_start: X coordinate of the start position
+* y_start: Y coordinate of the start position
+* x_end: X coordinate of the end position
+* y_end: Y coordinate of the end position
+*/
 void clearScreen(uint8_t x_start, uint8_t y_start,uint8_t x_end,uint8_t y_end)
 {
 	writeCommand(kSSD1331CommandCLEAR);
@@ -531,19 +587,28 @@ void clearScreen(uint8_t x_start, uint8_t y_start,uint8_t x_end,uint8_t y_end)
 	writeCommand(y_end);
 }
 
+/*
+Function: countDigits 
+* Counts the number of digits in the input integer
+* i: Integer
+* returns - digits: Number of digits in the integer
+*/
 unsigned int countDigits(unsigned int i) 
 {
-	unsigned int ret=1;
-	while (i/=10) ret++;
-	return ret;
+	unsigned int digits=1;
+	while (i/=10) digits++;
+	return digits;
 }
 
-
-
+/*
+Function: splitInt 
+* Splits an integer into digits
+* arr: Array where the digits of the split integer will be stored
+* num: The integer to be split
+*/
 void splitInt(int *arr, int num)
 {
 	int temp,factor=1;
-	// static int arr[10];
 	int counter =0;
 	temp=num;
 
