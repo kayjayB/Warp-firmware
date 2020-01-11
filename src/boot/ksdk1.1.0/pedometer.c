@@ -20,11 +20,14 @@
 #include "devSSD1331.h"
 #include "pedometer.h"
 
+/*
+Function: pedometer 
+* Executes the pedometer functionality
+* This includes calling the calibration function, calculating the steps and displaying the steps
+*/
 void pedometer()
 {
-    SEGGER_RTT_WriteString(0, "In funct\n");
 	calibratePedometer();
-    SEGGER_RTT_WriteString(0, "Calibrated\n");
 
     while (1)
     {
@@ -46,7 +49,7 @@ void pedometer()
                 flag=true;
             
             }
-            // Only once the step has ended, print the step
+            // Only once the step has ended, allow another step to start
             if (average < threshold  && flag==true)
             {
                 flag = false;
@@ -57,11 +60,17 @@ void pedometer()
 
             OSA_TimeDelay(delay);
         }
-        // OSA_TimeDelay(1000);
     }
     
 }
 
+/*
+Function: calibratePedometer
+* Calibrate the pedometer
+* Takes 20 readings of the acceleration from each axis and calculates the 
+* average value
+* This average value is used to remove the static offset from the acceleration readings
+*/
 void calibratePedometer()
 {
     devSSD1331init();
