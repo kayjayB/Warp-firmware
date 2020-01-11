@@ -196,14 +196,14 @@ readSensorRegisterMMA8451Q(uint8_t deviceRegister, int numberOfBytes)
 	return kWarpStatusOK;
 }
 
-void
-printSensorDataMMA8451Q(bool hexModeFlag)
+bool
+getSensorDataMMA8451Q(int16_t* acceleration)
 {
 	uint16_t	readSensorRegisterValueLSB;
 	uint16_t	readSensorRegisterValueMSB;
 	int16_t		readSensorRegisterValueCombined;
 	WarpStatus	i2cReadStatus;
-
+	bool  		success  = false;
 
 	/*
 	 *	From the MMA8451Q datasheet:
@@ -227,23 +227,11 @@ printSensorDataMMA8451Q(bool hexModeFlag)
 	 */
 	readSensorRegisterValueCombined = (readSensorRegisterValueCombined ^ (1 << 13)) - (1 << 13);
 
-
-	if (i2cReadStatus != kWarpStatusOK)
+	if (i2cReadStatus == kWarpStatusOK)
 	{
-		SEGGER_RTT_WriteString(0, " ----,");
+		acceleration[0]=readSensorRegisterValueCombined;
+		success=true;
 	}
-	else
-	{
-		if (hexModeFlag)
-		{
-			SEGGER_RTT_printf(0, " 0x%02x 0x%02x,", readSensorRegisterValueMSB, readSensorRegisterValueLSB);
-		}
-		else
-		{
-			SEGGER_RTT_printf(0, " %d,", readSensorRegisterValueCombined);
-		}
-	}
-
 
 	i2cReadStatus = readSensorRegisterMMA8451Q(kWarpSensorOutputRegisterMMA8451QOUT_Y_MSB, 2 /* numberOfBytes */);
 	readSensorRegisterValueMSB = deviceMMA8451QState.i2cBuffer[0];
@@ -255,23 +243,11 @@ printSensorDataMMA8451Q(bool hexModeFlag)
 	 */
 	readSensorRegisterValueCombined = (readSensorRegisterValueCombined ^ (1 << 13)) - (1 << 13);
 
-
-	if (i2cReadStatus != kWarpStatusOK)
+	if (i2cReadStatus == kWarpStatusOK)
 	{
-		SEGGER_RTT_WriteString(0, " ----,");
+		acceleration[1]=readSensorRegisterValueCombined;
+		success=true;
 	}
-	else
-	{
-		if (hexModeFlag)
-		{
-			SEGGER_RTT_printf(0, " 0x%02x 0x%02x,", readSensorRegisterValueMSB, readSensorRegisterValueLSB);
-		}
-		else
-		{
-			SEGGER_RTT_printf(0, " %d,", readSensorRegisterValueCombined);
-		}
-	}
-
 
 	i2cReadStatus = readSensorRegisterMMA8451Q(kWarpSensorOutputRegisterMMA8451QOUT_Z_MSB, 2 /* numberOfBytes */);
 	readSensorRegisterValueMSB = deviceMMA8451QState.i2cBuffer[0];
@@ -283,20 +259,12 @@ printSensorDataMMA8451Q(bool hexModeFlag)
 	 */
 	readSensorRegisterValueCombined = (readSensorRegisterValueCombined ^ (1 << 13)) - (1 << 13);
 
+	if (i2cReadStatus == kWarpStatusOK)
+	{
+		acceleration[2]=readSensorRegisterValueCombined;
+		success=true;
+	}
 
-	if (i2cReadStatus != kWarpStatusOK)
-	{
-		SEGGER_RTT_WriteString(0, " ----,");
-	}
-	else
-	{
-		if (hexModeFlag)
-		{
-			SEGGER_RTT_printf(0, " 0x%02x 0x%02x,", readSensorRegisterValueMSB, readSensorRegisterValueLSB);
-		}
-		else
-		{
-			SEGGER_RTT_printf(0, " %d,", readSensorRegisterValueCombined);
-		}
-	}
+	return success;
+
 }
