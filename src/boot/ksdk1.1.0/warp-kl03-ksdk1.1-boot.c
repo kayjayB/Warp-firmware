@@ -829,77 +829,6 @@ warpLowPowerSecondsSleep(uint32_t sleepSeconds, bool forceAllPinsIntoLowPowerSta
 	warpSetLowPowerMode(kWarpPowerModeVLPS, sleepSeconds);
 }
 
-
-
-void
-printPinDirections(void)
-{
-	/*
-#ifdef WARP_BUILD_ENABLE_SEGGER_RTT_PRINTF 
-	SEGGER_RTT_printf(0, "KL03_VDD_ADC:%d\n", GPIO_DRV_GetPinDir(kWarpPinKL03_VDD_ADC));
-	OSA_TimeDelay(100);
-	SEGGER_RTT_printf(0, "I2C0_SDA:%d\n", GPIO_DRV_GetPinDir(kWarpPinI2C0_SDA));
-	OSA_TimeDelay(100);
-	SEGGER_RTT_printf(0, "I2C0_SCL:%d\n", GPIO_DRV_GetPinDir(kWarpPinI2C0_SCL));
-	OSA_TimeDelay(100);
-	SEGGER_RTT_printf(0, "SPI_MOSI:%d\n", GPIO_DRV_GetPinDir(kWarpPinSPI_MOSI));
-	OSA_TimeDelay(100);
-	SEGGER_RTT_printf(0, "SPI_MISO:%d\n", GPIO_DRV_GetPinDir(kWarpPinSPI_MISO));
-	OSA_TimeDelay(100);
-	SEGGER_RTT_printf(0, "SPI_SCK_I2C_PULLUP_EN:%d\n", GPIO_DRV_GetPinDir(kWarpPinSPI_SCK_I2C_PULLUP_EN));
-	OSA_TimeDelay(100);
-	SEGGER_RTT_printf(0, "TPS82740A_VSEL2:%d\n", GPIO_DRV_GetPinDir(kWarpPinTPS82740_VSEL2));
-	OSA_TimeDelay(100);
-	SEGGER_RTT_printf(0, "ADXL362_CS:%d\n", GPIO_DRV_GetPinDir(kWarpPinADXL362_CS));
-	OSA_TimeDelay(100);
-	SEGGER_RTT_printf(0, "kWarpPinPAN1326_nSHUTD:%d\n", GPIO_DRV_GetPinDir(kWarpPinPAN1326_nSHUTD));
-	OSA_TimeDelay(100);
-	SEGGER_RTT_printf(0, "TPS82740A_CTLEN:%d\n", GPIO_DRV_GetPinDir(kWarpPinTPS82740A_CTLEN));
-	OSA_TimeDelay(100);
-	SEGGER_RTT_printf(0, "TPS82740B_CTLEN:%d\n", GPIO_DRV_GetPinDir(kWarpPinTPS82740B_CTLEN));
-	OSA_TimeDelay(100);
-	SEGGER_RTT_printf(0, "TPS82740A_VSEL1:%d\n", GPIO_DRV_GetPinDir(kWarpPinTPS82740_VSEL1));
-	OSA_TimeDelay(100);
-	SEGGER_RTT_printf(0, "TPS82740A_VSEL3:%d\n", GPIO_DRV_GetPinDir(kWarpPinTPS82740_VSEL3));
-	OSA_TimeDelay(100);
-	SEGGER_RTT_printf(0, "CLKOUT32K:%d\n", GPIO_DRV_GetPinDir(kWarpPinCLKOUT32K));
-	OSA_TimeDelay(100);
-	SEGGER_RTT_printf(0, "TS5A3154_IN:%d\n", GPIO_DRV_GetPinDir(kWarpPinTS5A3154_IN));
-	OSA_TimeDelay(100);
-	SEGGER_RTT_printf(0, "SI4705_nRST:%d\n", GPIO_DRV_GetPinDir(kWarpPinSI4705_nRST));
-	OSA_TimeDelay(100);
-#endif
-	*/
-}
-
-
-
-void
-dumpProcessorState(void)
-{
-/*
-	uint32_t	cpuClockFrequency;
-
-	CLOCK_SYS_GetFreq(kCoreClock, &cpuClockFrequency);
-#ifdef WARP_BUILD_ENABLE_SEGGER_RTT_PRINTF
-	SEGGER_RTT_printf(0, "\r\n\n\tCPU @ %u KHz\n", (cpuClockFrequency / 1000));
-	SEGGER_RTT_printf(0, "\r\tCPU power mode: %u\n", POWER_SYS_GetCurrentMode());
-	SEGGER_RTT_printf(0, "\r\tCPU clock manager configuration: %u\n", CLOCK_SYS_GetCurrentConfiguration());
-	SEGGER_RTT_printf(0, "\r\tRTC clock: %d\n", CLOCK_SYS_GetRtcGateCmd(0));
-	SEGGER_RTT_printf(0, "\r\tSPI clock: %d\n", CLOCK_SYS_GetSpiGateCmd(0));
-	SEGGER_RTT_printf(0, "\r\tI2C clock: %d\n", CLOCK_SYS_GetI2cGateCmd(0));
-	SEGGER_RTT_printf(0, "\r\tLPUART clock: %d\n", CLOCK_SYS_GetLpuartGateCmd(0));
-	SEGGER_RTT_printf(0, "\r\tPORT A clock: %d\n", CLOCK_SYS_GetPortGateCmd(0));
-	SEGGER_RTT_printf(0, "\r\tPORT B clock: %d\n", CLOCK_SYS_GetPortGateCmd(1));
-	SEGGER_RTT_printf(0, "\r\tFTF clock: %d\n", CLOCK_SYS_GetFtfGateCmd(0));
-	SEGGER_RTT_printf(0, "\r\tADC clock: %d\n", CLOCK_SYS_GetAdcGateCmd(0));
-	SEGGER_RTT_printf(0, "\r\tCMP clock: %d\n", CLOCK_SYS_GetCmpGateCmd(0));
-	SEGGER_RTT_printf(0, "\r\tVREF clock: %d\n", CLOCK_SYS_GetVrefGateCmd(0));
-	SEGGER_RTT_printf(0, "\r\tTPM clock: %d\n", CLOCK_SYS_GetTpmGateCmd(0));
-#endif
-*/
-}
-
 #ifdef WARP_BUILD_ENABLE_THERMALCHAMBERANALYSIS
 void
 addAndMultiplicationBusyLoop(long iterations)
@@ -927,8 +856,6 @@ int
 main(void)
 {
 	uint8_t					key;
-	WarpSensorDevice			menuTargetSensor = kWarpSensorBMX055accel;
-	volatile WarpI2CDeviceState *		menuI2cDevice = NULL;
 	uint16_t				menuI2cPullupValue = 32768;
 	uint8_t					menuRegisterAddress = 0x00;
 	uint16_t				menuSupplyVoltage = 0;
@@ -1211,14 +1138,9 @@ main(void)
 		SEGGER_RTT_WriteString(0, "Done booting\n");
 		// calibratePedometer();
 		// pedometer();
-		SEGGER_RTT_WriteString(0, "\rSelect:\n");
+		SEGGER_RTT_WriteString(0, "\rPedometer  Loading....\n");
 		OSA_TimeDelay(gWarpMenuPrintDelayMilliseconds);
-		SEGGER_RTT_WriteString(0, "\r- 'z': dump all sensors data.\n");
-		OSA_TimeDelay(gWarpMenuPrintDelayMilliseconds);
-
-		SEGGER_RTT_WriteString(0, "\rEnter selection> ");
-		OSA_TimeDelay(gWarpMenuPrintDelayMilliseconds);
-		key = SEGGER_RTT_WaitKey();
+		key = 'z';
 
 		switch (key)
 		{
@@ -1227,22 +1149,26 @@ main(void)
 			 */
 			case 'z':
 			{
-				bool		hexModeFlag;
+				// bool		hexModeFlag;
 
 
 				SEGGER_RTT_WriteString(0, "\r\n\tEnabling I2C pins...\n");
 				enableI2Cpins(menuI2cPullupValue);
 
-				SEGGER_RTT_WriteString(0, "\r\n\tHex or converted mode? ('h' or 'c')> ");
-				key = SEGGER_RTT_WaitKey();
-				hexModeFlag = (key == 'h' ? 1 : 0);
+				// printAllSensors(true /* printHeadersAndCalibration */, hexModeFlag, menuDelayBetweenEachRun, menuI2cPullupValue);
+				uint32_t	numberOfConfigErrors = 0;
 
-				SEGGER_RTT_WriteString(0, "\r\n\tSet the time delay between each run in milliseconds (e.g., '1234')> ");
-				uint16_t	menuDelayBetweenEachRun = read4digits();
-				SEGGER_RTT_printf(0, "\r\n\tDelay between read batches set to %d milliseconds.\n\n", menuDelayBetweenEachRun);
-				OSA_TimeDelay(gWarpMenuPrintDelayMilliseconds);
+				#ifdef WARP_BUILD_ENABLE_DEVMMA8451Q
+				numberOfConfigErrors += configureSensorMMA8451Q(0x00,/* Payload: Disable FIFO */
+								0x01,/* Normal read 8bit, 800Hz, normal, active mode */
+								menuI2cPullupValue
+								);
+				#endif
+				while(1)
+				{
+					pedometer();
+				}
 
-				printAllSensors(true /* printHeadersAndCalibration */, hexModeFlag, menuDelayBetweenEachRun, menuI2cPullupValue);
 
 				/*
 				 *	Not reached (printAllSensors() does not return)
@@ -1317,7 +1243,7 @@ while(1)
 		#endif
 
 		#ifdef WARP_BUILD_ENABLE_DEVMMA8451Q
-		printSensorDataMMA8451Q(hexModeFlag);
+		// printSensorDataMMA8451Q(hexModeFlag);
 		#endif
 
 		#ifdef WARP_BUILD_ENABLE_SEGGER_RTT_PRINTF
