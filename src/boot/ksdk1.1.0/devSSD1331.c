@@ -8,9 +8,8 @@
 #include "warp.h"
 #include "devSSD1331.h"
 
-volatile uint8_t	inBuffer[32];
-volatile uint8_t	payloadBytes[32];
-// uint8_t oled_buf[32];
+volatile uint8_t	inBuffer[16];
+volatile uint8_t	payloadBytes[16];
 
 static const char alphabet[0x60][6] = {
     { 0x00,0x00,0x00,0x00,0x00,0x00 } , /*SPC */
@@ -104,11 +103,6 @@ static const char alphabet[0x60][6] = {
     { 0x00,0x6C,0x10,0x10,0x6C,0x00 } , /* x  */
     { 0x00,0x4C,0x50,0x30,0x1C,0x00 } , /* y  */
     { 0x00,0x44,0x64,0x54,0x4C,0x00 } , /* z  */
-    { 0x00,0x08,0x36,0x41,0x41,0x00 } , /* {  */
-    { 0x00,0x00,0x7F,0x00,0x00,0x00 } , /* |  */
-    { 0x41,0x41,0x36,0x08,0x00,0x00 } , /* }  */
-    { 0x08,0x04,0x08,0x10,0x08,0x00 } , /* ~  */
-    { 0x00,0x00,0x00,0x00,0x00,0x00 }    /*null*/
 };
 
 /*
@@ -175,13 +169,13 @@ writeCommandMulti(uint8_t *commandByte, uint8_t count)
 	 */
 	GPIO_DRV_ClearPinOutput(kSSD1331PinDC);
 	for(int i=0; i<count; i++) {
-	payloadBytes[0] = commandByte[i];
-	status = SPI_DRV_MasterTransferBlocking(0	/* master instance */,
-					NULL		/* spi_master_user_config_t */,
-					(const uint8_t * restrict)&payloadBytes[0],
-					(uint8_t * restrict)&inBuffer[0],
-					1		/* transfer size */,
-					100		/* timeout in microseconds (unlike I2C which is ms) */);
+		payloadBytes[0] = commandByte[i];
+		status = SPI_DRV_MasterTransferBlocking(0	/* master instance */,
+						NULL		/* spi_master_user_config_t */,
+						(const uint8_t * restrict)&payloadBytes[0],
+						(uint8_t * restrict)&inBuffer[0],
+						1		/* transfer size */,
+						100		/* timeout in microseconds (unlike I2C which is ms) */);
 	}
 	/*
 	 *	Drive /CS high
@@ -243,7 +237,7 @@ static void FontSizeConvert()
             lpx=2;
             lpy=2;
             break;
-        case WHx36  :
+        case WHx36:
             lpx=6;
             lpy=6;
             break;
@@ -351,12 +345,16 @@ devSSD1331init(void)
 	chr_size = HIGH;
 	FontSizeConvert();
 	locate(3,10);
-	write_string(1, 10, "STEPS:");
-	// locate(3,30);
-	// write_string(1, 30, "9872");
+	write_string("STEPS:");
+
 	locate(3,30);
-	// write_string(1, 30, "9873");
-	count();
+	uint16_t value = 2;
+	uint16_t value2 = 3;
+	display(value, value2);
+	SEGGER_RTT_WriteString(0, "\r\n Should be displayed\n");
+	// write_int(0,1);
+	// count();
+
 	// int val = 200;
 	// int digitsCurrent = 3;
 	// int* splitCurrent = splitInt(val);
@@ -364,12 +362,6 @@ devSSD1331init(void)
 	// write_int(3, 30, splitCurrent,digitsCurrent);
 	
 	return 0;
-}
-
-int _putc( int c )
-{    
-    PutChar( char_x , char_y ,c);
-    return c;
 }
 
 uint16_t toRGB(uint16_t R,uint16_t G,uint16_t B)
@@ -383,7 +375,7 @@ uint16_t toRGB(uint16_t R,uint16_t G,uint16_t B)
     return c;
 }
 
-void PutChar(uint8_t column,uint8_t row, int value)
+void PutChar(int value)
 {
 	uint8_t chMode = 0;
 	if(value == '\n') {
@@ -402,7 +394,6 @@ void PutChar(uint8_t column,uint8_t row, int value)
 	unsigned char Temp=0;
 	j = 0; i = 0;
 	w = X_width;
-	// FontSizeConvert(&lpx, &lpy);
 	xw = X_width;
 	
 	for(i=0; i<xw; i++) {
@@ -417,7 +408,6 @@ void PutChar(uint8_t column,uint8_t row, int value)
 			}
 		}
 	}
-	// FontSizeConvert(&lpx, &lpy);
 	char_x += (w*lpx);
 }
 
@@ -427,20 +417,11 @@ void locate(uint8_t column, uint8_t row)
     char_y = row;
 }
 
-void foreground(uint16_t color)
-{
-    Char_Color = color;
-}
-void background(uint16_t color)
-{
-    BGround_Color = color;
-}
-
 void pixel(uint8_t x,uint8_t y, char Color)
 {
 	if (Color)
 	{
-		unsigned char cmd[7]= {Set_Column_Address,0x00,0x00,Set_Row_Address,0x00,0x00};
+		unsigned char cmd[7]= {kSSD1331CommandSETCOLUMN,0x00,0x00,kSSD1331CommandSETROW,0x00,0x00};
 
 		if ((x>width)||(y>height)) return ;
 
@@ -459,7 +440,7 @@ void pixel(uint8_t x,uint8_t y, char Color)
 
 	// uint16_t white = toRGB(255,255,255);
 	// uint16_t black = toRGB(0,0,0);
-	// unsigned char cmd[7]= {Set_Column_Address,0x00,0x00,Set_Row_Address,0x00,0x00};
+	// unsigned char cmd[7]= {kSSD1331CommandSETCOLUMN,0x00,0x00,kSSD1331CommandSETROW,0x00,0x00};
     // if ((x>width)||(y>height)) return ;
     // cmd[1] = x;
     // cmd[2] = x;
@@ -473,87 +454,71 @@ void pixel(uint8_t x,uint8_t y, char Color)
 	// 	writeData(black);
 }
 
-void write_string(uint8_t x, uint8_t y, const char *pString)
+void write_string(const char *pString)
 {
 	// int lpx,lpy;
 	// FontSizeConvert(&lpx, &lpy);
     while (*pString != '\0') {       
-        if (x > (WIDTH - lpx / 2)) {
-            x = 0;
-            y += lpy;
-            if (y > (HEIGHT - lpy)) {
-                y = x = 0;
-            }
-        }
 		int charAscii = (int)*pString;
-        PutChar(x, y, charAscii);
-        x += lpx / 2;
+        PutChar(charAscii);
         pString++;
     }
 }
 
-void write_int(uint8_t x, uint8_t y, int* pString, int size)
+void write_int(int* pString, int size)
 {
 	// int lpx,lpy;
 	// FontSizeConvert(&lpx, &lpy);
     for (int i=0; i<size;i++) 
 	{       
 		int charAscii = pString[i]+48;
-        PutChar(x, y, charAscii);
-        x += lpx / 2;
+        PutChar(charAscii);
     }
 }
 
-bool compareInt(int val1, int val2)
+int getCurrentDisplay()
 {
-	if (val1 == val2)
-		return true;
-
-	return false;
+	return displayedNumber;
 }
 
-void count()
+void display(uint16_t val, uint16_t prevVal)
 {
-	int val;
-	int prevVal=8;
-	for (int i=9;i<102;i++)
+	if (val != prevVal)
 	{
-		val = i;
-		if (!compareInt(val, prevVal))
+		unsigned int digitsCurrent=countDigits(val);
+		unsigned int digitsOld=countDigits(prevVal);
+		if (digitsCurrent != digitsOld) // If the length of the numbers are different, rewrite the whole string
 		{
-			unsigned int digitsCurrent=countDigits(val);
-			unsigned int digitsOld=countDigits(prevVal);
-			if (!compareInt(digitsCurrent, digitsOld)) // If the length of the numbers are different, rewrite the whole string
-			{
-				int splitCurrent1[10];
-				splitInt(splitCurrent1,val);
-				locate(3,30);
-				clearScreen(char_x, 30 ,char_x+(X_width*lpx),30+Y_height*lpy);
-				write_int(3, 30, splitCurrent1,digitsCurrent);
-			}
-			else
-			{
-				int splitCurrent[10];
-				int splitPrev[10];
-				splitInt(splitCurrent,val);
-				splitInt(splitPrev, prevVal);
+			int splitCurrent1[6];
+			splitInt(splitCurrent1,val);
+			locate(3,30);
+			clearScreen(char_x, 30 ,char_x+(X_width*lpx),30+Y_height*lpy);
+			write_int(splitCurrent1,digitsCurrent);
+		}
+		else
+		{
+			// SEGGER_RTT_WriteString(0, "\r\n\t same length \n");
+			int splitCurrent[6];
+			int splitPrev[6];
+			splitInt(splitCurrent, val);
+			splitInt(splitPrev, prevVal);
 
-				for (unsigned int j=0;j<digitsCurrent; j++)
+			for (unsigned int j=0;j<digitsCurrent; j++)
+			{
+				if (splitCurrent[j]!= splitPrev[j])
 				{
-					if (!compareInt(splitCurrent[j], splitPrev[j]))
-					{
-						locate(3,30);
-						char_x += (j)*(X_width*lpx);
-						clearScreen(char_x, 30 ,char_x+(X_width*lpx),30+Y_height*lpy);
+					// SEGGER_RTT_WriteString(0, "\r\n\t not equal. printing \n");
+					locate(3,30);
+					char_x += (j)*(X_width*lpx);
+					clearScreen(char_x, 30 ,char_x+(X_width*lpx),30+Y_height*lpy);
 
-						int charAscii = splitCurrent[j]+48;
-						PutChar(3,30,charAscii);
-					}
+					int charAscii = splitCurrent[j]+48;
+					PutChar(charAscii);
 				}
 			}
 		}
-		prevVal = i;
 	}
+	displayedNumber = val;
 }
 
 
@@ -595,6 +560,4 @@ void splitInt(int *arr, int num)
 		counter++;
 
 	}
-
-	// return arr;
 }
