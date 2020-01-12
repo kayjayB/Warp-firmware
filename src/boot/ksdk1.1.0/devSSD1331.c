@@ -353,18 +353,9 @@ devSSD1331init(void)
 	writeString("STEPS:");
 
 	locate(3,30);
-	// uint16_t value = 2;
-	// uint16_t value2 = 3;
-	// display(value, value2);
-	// SEGGER_RTT_WriteString(0, "\r\n Should be displayed\n");
-	// writeInt(0,1);
-	// count();
-
-	// int val = 200;
-	// int digitsCurrent = 3;
-	// int* splitCurrent = splitInt(val);
-	// locate(3,30);
-	// writeInt(3, 30, splitCurrent,digitsCurrent);
+	int value = 0;
+	uint16_t value2 = 1;
+	display(value, value2);
 	
 	return 0;
 }
@@ -566,6 +557,12 @@ void display(uint16_t val, uint16_t prevVal)
 				}
 			}
 		}
+	}
+	if (val==0)
+	{
+		locate(3,30);
+		int charAscii = val + 48;
+		writeChar(charAscii);	
 	}
 	displayedNumber = val;
 }
