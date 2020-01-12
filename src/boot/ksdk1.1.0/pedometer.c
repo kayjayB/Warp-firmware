@@ -98,3 +98,22 @@ void calibratePedometer()
     resultant[0] = sqrt(((X_acc[numReadings-1] - X_avg) * (X_acc[numReadings-1] - X_avg)) + ((Y_acc[numReadings-1] - Y_avg) * (Y_acc[numReadings-1] - Y_avg)) + ((Z_acc[numReadings-1] - Z_avg) * (Z_acc[numReadings-1] - Z_avg)));
 
 }
+
+int movingAverage(int *window, long *sum, int pos, int numSamples, int nextNum)
+{
+  //Subtract the oldest number from the prev sum, add the new number
+  *sum = *sum - window[pos] + nextNum;
+  //Assign the nextNum to the position in the array
+  window[pos] = nextNum;
+  //return the average
+  return *sum / numSamples;
+}
+
+    sum -= reads[ptr];
+    sum += heartRateValue;
+    reads[ptr] = heartRateValue;
+    ave = sum / samp_siz;
+    //Serial.println(heartRateValue);
+    //Serial.println(ave);
+    ptr++;
+    ptr %= samp_siz;

@@ -4,6 +4,7 @@ volatile WarpI2CDeviceState			deviceMMA8451QState;
 
 void calibratePedometer();
 void pedometer();
+int movingAverage(int *window, long *sum, int pos, int numSamples, int nextNum);
 
 int numReadings = 20;
 float numReadingsF = 20.0;
