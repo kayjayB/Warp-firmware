@@ -114,7 +114,7 @@ enum
 	kSSD1331PinSCK		= GPIO_MAKE_PIN(HW_GPIOA, 9),
 	kSSD1331PinCSn		= GPIO_MAKE_PIN(HW_GPIOB, 13),
 	kSSD1331PinDC		= GPIO_MAKE_PIN(HW_GPIOA, 12),
-	kSSD1331PinRST		= GPIO_MAKE_PIN(HW_GPIOB, 0),
+	kSSD1331PinRST		= GPIO_MAKE_PIN(HW_GPIOA, 2),
 };
 
 static int
@@ -353,10 +353,10 @@ devSSD1331init(void)
 	writeString("STEPS:");
 
 	locate(3,30);
-	uint16_t value = 2;
-	uint16_t value2 = 3;
-	display(value, value2);
-	SEGGER_RTT_WriteString(0, "\r\n Should be displayed\n");
+	// uint16_t value = 2;
+	// uint16_t value2 = 3;
+	// display(value, value2);
+	// SEGGER_RTT_WriteString(0, "\r\n Should be displayed\n");
 	// writeInt(0,1);
 	// count();
 
