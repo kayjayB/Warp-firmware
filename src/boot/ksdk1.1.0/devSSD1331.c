@@ -114,7 +114,7 @@ enum
 	kSSD1331PinSCK		= GPIO_MAKE_PIN(HW_GPIOA, 9),
 	kSSD1331PinCSn		= GPIO_MAKE_PIN(HW_GPIOB, 13),
 	kSSD1331PinDC		= GPIO_MAKE_PIN(HW_GPIOA, 12),
-	kSSD1331PinRST		= GPIO_MAKE_PIN(HW_GPIOA, 2),
+	kSSD1331PinRST		= GPIO_MAKE_PIN(HW_GPIOB, 0),
 };
 
 static int
@@ -370,16 +370,16 @@ Function: toRGB
 This function was adapted from: 
 https://os.mbed.com/users/star297/code/ssd1331/docs/tip/ssd1331_8h_source.html
 */
-uint16_t toRGB(uint16_t R,uint16_t G,uint16_t B)
-{  
-    uint16_t c;
-    c = R >> 3;
-    c <<= 6;
-    c |= G >> 2;
-    c <<= 5;
-    c |= B >> 3;
-    return c;
-}
+// uint16_t toRGB(uint16_t R,uint16_t G,uint16_t B)
+// {  
+//     uint16_t c;
+//     c = R >> 3;
+//     c <<= 6;
+//     c |= G >> 2;
+//     c <<= 5;
+//     c |= B >> 3;
+//     return c;
+// }
 
 /*
 Function: writeChar 
@@ -461,7 +461,7 @@ void pixel(uint8_t x,uint8_t y, char colour)
 		cmd[5] = y;
 		writeCommandMulti(cmd,6);
 
-		uint16_t white = toRGB(255,255,255);
+		uint16_t white = 0xffff;
 
 		writeData(white);
 	}
@@ -507,7 +507,7 @@ Function: getCurrentDisplay
 * Get the number currently displayed on the screen
 * returns - displayedNumber: Number on the screen
 */
-int getCurrentDisplay()
+int16_t getCurrentDisplay()
 {
 	return displayedNumber;
 }
@@ -590,9 +590,9 @@ Function: countDigits
 * i: Integer
 * returns - digits: Number of digits in the integer
 */
-unsigned int countDigits(unsigned int i) 
+uint16_t countDigits(uint16_t i) 
 {
-	unsigned int digits=1;
+	uint16_t digits=1;
 	while (i/=10) digits++;
 	return digits;
 }

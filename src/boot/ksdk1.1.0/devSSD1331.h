@@ -49,8 +49,8 @@ typedef enum
 } SSD1331Commands;
 
 
-static int lpx=1;
-static int lpy=1;
+static uint8_t lpx;
+static uint8_t lpy;
 // static void FontSizeConvert();
 
 uint8_t chr_size;
@@ -62,12 +62,11 @@ int	devSSD1331init(void);
 void writeChar(int value);
 void pixel(uint8_t x,uint8_t y,char colour);
 void locate(uint8_t column, uint8_t row);
-uint16_t toRGB(uint16_t R,uint16_t G,uint16_t B);
 void writeString(const char *pString);
 void writeInt(int* pString, int size);
 void clearScreen(uint8_t x_start, uint8_t y_start,uint8_t x_end,uint8_t y_end);
 
 void display(uint16_t val, uint16_t prevVal);
-int getCurrentDisplay();
-unsigned int countDigits(unsigned int i);
+int16_t getCurrentDisplay();
+uint16_t countDigits(uint16_t i);
 void splitInt(int *arr, int num);
