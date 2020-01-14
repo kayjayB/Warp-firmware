@@ -48,33 +48,37 @@ void pedometer()
             OSA_TimeDelay(delay1);
 
             // Perform moving average filtering on the samples
-            X_acc[i] = movingAverage(arrNumbersX, &sumX, filterCounter, smoothingNumber, acceleration[0] - X_avg);
-            Y_acc[i] = movingAverage(arrNumbersY, &sumY, filterCounter, smoothingNumber, acceleration[1] - Y_avg);
-            Z_acc[i]  = movingAverage(arrNumbersZ, &sumZ, filterCounter, smoothingNumber, acceleration[2] - Z_avg);
+            X_acc = movingAverage(arrNumbersX, &sumX, filterCounter, smoothingNumber, acceleration[0] - X_avg);
+            Y_acc = movingAverage(arrNumbersY, &sumY, filterCounter, smoothingNumber, acceleration[1] - Y_avg);
+            Z_acc = movingAverage(arrNumbersZ, &sumZ, filterCounter, smoothingNumber, acceleration[2] - Z_avg);
 
-            if (X_acc[i] >= maxX)
+            tempXSum += X_acc;
+            tempYSum += Y_acc;
+            tempZSum += Z_acc;
+
+            if (X_acc >= maxX)
             {
-                maxX = X_acc[i];
+                maxX = X_acc;
             }
-            if (X_acc[i] < minX)
+            if (X_acc < minX)
             {
-                minX = X_acc[i];
+                minX = X_acc;
             }
-            if (Y_acc[i] >= maxY)
+            if (Y_acc >= maxY)
             {
-                maxY = Y_acc[i];
+                maxY = Y_acc;
             }
-            if (Y_acc[i] < minY)
+            if (Y_acc < minY)
             {
-                minY = Y_acc[i];
+                minY = Y_acc;
             }
-            if (Z_acc[i] >= maxZ)
+            if (Z_acc >= maxZ)
             {
-                maxZ = Z_acc[i];
+                maxZ = Z_acc;
             }
-            if (Z_acc[i] < minZ)
+            if (Z_acc < minZ)
             {
-                minZ = Z_acc[i];
+                minZ = Z_acc;
             }
 
             filterCounter++;
@@ -82,22 +86,26 @@ void pedometer()
 
             switch (activeAxis) {
                 case 1:
-                    average = (X_acc[i]);  //+ X_acc[i-1])/2;
+                    average = (X_acc);  //+ X_acc[i-1])/2;
                     break;
                 case 2:
-                    average = (Y_acc[i] );//+ Y_acc[i-1])/2;
+                    average = (Y_acc );//+ Y_acc[i-1])/2;
                     break;
                 case 3:
-                    average = (Z_acc[i] );// + Z_acc[i-1])/2;
+                    average = (Z_acc);// + Z_acc[i-1])/2;
                     break;
                 default:
-                    average = (Z_acc[i]);// + Z_acc[i-1])/2;
+                    average = (Z_acc);// + Z_acc[i-1])/2;
                     break;
             }
 
-            SEGGER_RTT_printf(0, "Average: %d \n", (int)average);
+            SEGGER_RTT_printf(0, "%d, %d, %d, %d, %d \n", X_acc, Y_acc, Z_acc, activeAxis, threshold);
 
-            SEGGER_RTT_printf(0, "Threshold: %d \n", (int)threshold);
+            // SEGGER_RTT_printf(0, "Axis: %d, \t", (int)activeAxis);
+
+            // SEGGER_RTT_printf(0, "Average: %d, \t", (int)average);
+
+            // SEGGER_RTT_printf(0, "Threshold: %d \n", (int)threshold);
 
             // SEGGER_RTT_printf(0, "Active axis: %d \n", (int)activeAxis);
 
@@ -135,6 +143,9 @@ void pedometer()
             activeAxis = 3;
             threshold = (maxZ + minZ)/2;
         }
+        X_avg = tempXSum/numReadings;
+        Y_avg = tempYSum/numReadings;
+        Z_avg = tempZSum/numReadings;
 
         OSA_TimeDelay(delay2);
     }
@@ -164,36 +175,36 @@ void calibratePedometer()
         getSensorDataMMA8451Q(acceleration);
         OSA_TimeDelay(delay1);
         OSA_TimeDelay(delay1);
-        X_acc[i] = acceleration[0];
-        sum_X += X_acc[i];
-        Y_acc[i] = acceleration[1];
-        sum_Y += Y_acc[i];
-        Z_acc[i] = acceleration[2];
-        sum_Z += Z_acc[i];
+        X_acc = acceleration[0];
+        sum_X += X_acc;
+        Y_acc = acceleration[1];
+        sum_Y += Y_acc;
+        Z_acc = acceleration[2];
+        sum_Z += Z_acc;
 
-        if (X_acc[i] > maxX)
+        if (X_acc > maxX)
         {
-            maxX = X_acc[i];
+            maxX = X_acc;
         }
-        if (X_acc[i] < minX)
+        if (X_acc < minX)
         {
-            minX = X_acc[i];
+            minX = X_acc;
         }
-        if (Y_acc[i] > maxY)
+        if (Y_acc > maxY)
         {
-            maxY = Y_acc[i];
+            maxY = Y_acc;
         }
-        if (Y_acc[i] < minY)
+        if (Y_acc < minY)
         {
-            minY = Y_acc[i];
+            minY = Y_acc;
         }
-        if (Z_acc[i] > maxZ)
+        if (Z_acc > maxZ)
         {
-            maxZ = Z_acc[i];
+            maxZ = Z_acc;
         }
-        if (Z_acc[i] < minZ)
+        if (Z_acc < minZ)
         {
-            minZ = Z_acc[i];
+            minZ = Z_acc;
         }
     }
 
