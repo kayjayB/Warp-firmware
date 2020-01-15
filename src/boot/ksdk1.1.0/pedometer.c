@@ -35,12 +35,6 @@ void pedometer()
     
 	calibratePedometer(&X_avg, &Y_avg, &Z_avg);
 
-    // maxX = -10000;
-    // minX = 10000;
-    // maxY = -10000;
-    // minZ = 10000;
-    // maxZ = -10000;
-    // minZ = 10000;
     tempXSum = 0;
     tempYSum = 0;
     tempZSum = 0;
@@ -130,12 +124,6 @@ void pedometer()
 
     while (1)
     {
-        maxX = -10000;
-        minX = 10000;
-        maxY = -10000;
-        minZ = 10000;
-        maxZ = -10000;
-        minZ = 10000;
         tempXSum = 0;
         tempYSum = 0;
         tempZSum = 0;
@@ -146,10 +134,21 @@ void pedometer()
             int tempX = acceleration[0] - X_avg;
             int tempY = acceleration[1] - Y_avg;
             int tempZ = acceleration[2] - Z_avg;
+
             // Perform moving average filtering on the samples
-            X_acc = movingAverage(arrNumbersX, &sumX, filterCounter, smoothingNumber, tempX);// - X_avg));
-            Y_acc = movingAverage(arrNumbersY, &sumY, filterCounter, smoothingNumber, tempY);// - Y_avg));
-            Z_acc = movingAverage(arrNumbersZ, &sumZ, filterCounter, smoothingNumber, tempZ);// - Z_avg));
+            X_acc = movingAverage(arrNumbersX, &sumX, filterCounter, smoothingNumber, tempX);
+            Y_acc = movingAverage(arrNumbersY, &sumY, filterCounter, smoothingNumber, tempY);
+            Z_acc = movingAverage(arrNumbersZ, &sumZ, filterCounter, smoothingNumber, tempZ);
+
+            if (i==0)
+            {
+                maxX = X_acc;
+                minX = X_acc;
+                maxY = Y_acc;
+                minY = Y_acc;
+                maxZ = Z_acc;
+                minZ = Z_acc;
+            }
 
             // SEGGER_RTT_printf(0, "%d, %d, %d, %d, %d, %d \n", X_acc, Y_acc, Z_acc, tempX, tempY, tempZ);
 
@@ -204,16 +203,16 @@ void pedometer()
                     break;
             }
 
-            SEGGER_RTT_printf(0, "%d, %d, %d, %d, %d \n", X_acc, Y_acc, Z_acc, activeAxis, threshold);
+            // SEGGER_RTT_printf(0, "%d, %d, %d, %d, %d \n", X_acc, Y_acc, Z_acc, activeAxis, threshold);
 
             // if (average > threshold && flag==false && abs((average - previous)>50))
             if ((previous > threshold) && (threshold > average) && (abs(average - previous)>100))
             {
                 steps=steps+1;
                 flag=true;
-                uint16_t prevVal = getCurrentDisplay();
-                display(steps, prevVal);
-            
+                // uint16_t prevVal = getCurrentDisplay();
+                // display(steps, prevVal);
+                SEGGER_RTT_printf(0, "Steps: %d \n", steps);
             }
             // Only once the step has ended, allow another step to start
             // if (average < threshold  && flag==true)
@@ -244,13 +243,6 @@ void pedometer()
             activeAxis = 3;
             threshold = (maxZ + minZ)/2;
         }
-        // X_avg = tempXSum/numReadings;
-        // Y_avg = tempYSum/numReadings;
-        // Z_avg = tempZSum/numReadings;
-
-        // flag = false;
-
-        // OSA_TimeDelay(delay2);
     }
     
 }
