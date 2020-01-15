@@ -361,27 +361,6 @@ devSSD1331init(void)
 }
 
 /*
-Function: toRGB 
-* Convert (R,G,B) to 0xRGB
-* R: Red component in integer form
-* G: Green component in integer form
-* B: Blue component in integer form
-* returns - c: Hex form of the colour
-This function was adapted from: 
-https://os.mbed.com/users/star297/code/ssd1331/docs/tip/ssd1331_8h_source.html
-*/
-// uint16_t toRGB(uint16_t R,uint16_t G,uint16_t B)
-// {  
-//     uint16_t c;
-//     c = R >> 3;
-//     c <<= 6;
-//     c |= G >> 2;
-//     c <<= 5;
-//     c |= B >> 3;
-//     return c;
-// }
-
-/*
 Function: writeChar 
 * Writes a character to the OLED diplay
 * value: ASCII value of the character to be written to the display
@@ -474,7 +453,7 @@ Function: writeString
 * Writes a string to the OLED diplay
 * pString: Character array containing the string to be written
 This function was adapted from: 
-https://os.mbed.com/users/star297/code/ssd1331/docs/tip/ssd1331_8h_source.html
+https://electropeak.com/learn/the-beginners-guide-to-display-text-image-animation-on-oled-display-by-arduino/
 */
 void writeString(const char *pString)
 {
