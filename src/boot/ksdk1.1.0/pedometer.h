@@ -17,6 +17,10 @@ int16_t X_acc;
 int16_t Y_acc;
 int16_t Z_acc;
 
+int16_t X_acc_Prev;
+int16_t Y_acc_Prev;
+int16_t Z_acc_Prev;
+
 int16_t minX;
 int16_t maxX;
 int16_t minY;
@@ -24,9 +28,9 @@ int16_t maxY;
 int16_t minZ;
 int16_t maxZ;
 
-uint8_t activeAxis=2;
+uint8_t activeAxis=1;
 
-int16_t threshold;
+int16_t threshold=0;
 
 int tempXSum = 0;
 int tempYSum = 0;
@@ -36,9 +40,10 @@ long sumX=0;
 long sumY=0;
 long sumZ=0;
 int16_t average=0;
-uint16_t delay1=1; //  1 ms delay
+int16_t previous=0;
+uint16_t delay1=20; //  20 ms delay
 uint16_t delay2=20; //  50 ms delay
 bool flag = false;
-int X_avg, Y_avg, Z_avg;
+int X_avg=0, Y_avg=0, Z_avg=0;
 uint16_t steps =  0;
 uint16_t I2cPullupValue = 32768;
