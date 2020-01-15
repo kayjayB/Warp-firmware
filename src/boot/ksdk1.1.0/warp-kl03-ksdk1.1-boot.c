@@ -99,7 +99,7 @@ volatile lpuart_state_t 			lpuartState;
 /*
  *	TODO: move magic default numbers into constant definitions.
  */
-volatile uint32_t			gWarpI2cBaudRateKbps		= 200;
+volatile uint32_t			gWarpI2cBaudRateKbps		= 500;
 volatile uint32_t			gWarpUartBaudRateKbps		= 1;
 volatile uint32_t			gWarpSpiBaudRateKbps		= 200;
 volatile uint32_t			gWarpSleeptimeSeconds		= 0;
