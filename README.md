@@ -3,12 +3,12 @@
 ### Magdalene College
 
 ## Project Overview
-This repository presents a digital pedometer implemented on the FRDMKL03 board using the Warp firmware. The pedometer uses the MMA8451Q digital three axis accelerometerto obtain acceleration data. The resultant step count is printed onto an OLED display.
+This repository presents a digital pedometer implemented on the FRDMKL03 board using the Warp firmware. The pedometer uses the MMA8451Q digital three axis accelerometer to obtain acceleration data. The resultant step count is printed onto an OLED display.
 
 The overall system block diagram is as follows:
 ![Block Diagram](Images/Pedometer.png)
 
-A flowchart for the algorothm used to identify steps is given below.
+A flowchart for the algorithm used to identify steps is given below.
 ![Pedometer algorithm](Images/StepCounter.png)
 
 The circuit diagram for the pedometer is provided below.
