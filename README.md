@@ -40,6 +40,6 @@ Other files that were edited include:
 - `build/build.sh`: Added pedometer files to build script and removed files for other sensors
 
 ### Documentation
-- [Documentation][Documentation]: Contains the project report and appendices. 
-  - [Documentation/Appendices.pdf]: Contains the circuit diagram andphotographs of the hardware
+- [Documentation](https://github.com/kayjayB/Warp-firmware/tree/master/Documentation): Contains the project report and appendices. 
+  - [Appendices.pdf](https://github.com/kayjayB/Warp-firmware/blob/master/Documentation/Appendices.pdf): Contains the circuit diagram andphotographs of the hardware
 - [Images](https://github.com/kayjayB/Warp-firmware/tree/master/Images): Contains the images displayed in the README
