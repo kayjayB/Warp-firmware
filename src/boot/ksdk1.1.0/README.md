@@ -1,4 +1,4 @@
-# Design and Implementation of a Digital Pedometer
+# Design and Implementation of a Three Axis Digital Pedometer
 ### Kayla-Jade Butkow (kjb85)
 ### Magdalene College
 
