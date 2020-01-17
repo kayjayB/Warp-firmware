@@ -1,4 +1,3 @@
-// #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
 
@@ -33,26 +32,24 @@ void pedometer()
     uint16_t filterCounter = 0;
     uint8_t smoothingNumber = 4;
     
+    // Call the calibration  function
 	calibratePedometer(&X_avg, &Y_avg, &Z_avg);
 
     tempXSum = 0;
     tempYSum = 0;
     tempZSum = 0;
 
+    // Read in 50 samples to calculate the threshold for the first loop of the step counter
     for (uint8_t i=0; i<numReadings; i++)
     {
         // Read sensor data
         getSensorDataMMA8451Q(acceleration);
 
-        // Perform moving average filtering on the samples
-        // X_acc = movingAverage(arrNumbersX, &sumX, filterCounter, smoothingNumber, acceleration[0]);// - X_avg));
-        // Y_acc = movingAverage(arrNumbersY, &sumY, filterCounter, smoothingNumber, acceleration[1]);// - Y_avg));
-        // Z_acc = movingAverage(arrNumbersZ, &sumZ, filterCounter, smoothingNumber, acceleration[2]);// - Z_avg));
-
         X_acc = acceleration[0];
         Y_acc = acceleration[1];
         Z_acc = acceleration[2];
 
+        // In the first loop, set the minimum and maximum acceleration as the current sample
         if (i==0)
         {
             maxX = X_acc;
@@ -63,12 +60,13 @@ void pedometer()
             minZ = Z_acc;
         }
 
-        // SEGGER_RTT_printf(0, "X_avg: %d\t Y_avg: %d\t Z_avg: %d\n", (int)X_avg, (int)Y_avg, (int)Z_avg);
-
+        // Calculate the sum of the acceleration for each axis
         tempXSum += X_acc;
         tempYSum += Y_acc;
         tempZSum += Z_acc;
 
+        // Assign the minimum and maximum acceleration for each axis
+        // If the current sample is the minimum or maximum, update the minimum or maximum
         if (X_acc >= maxX)
         {
             maxX = X_acc;
@@ -94,12 +92,11 @@ void pedometer()
             minZ = Z_acc;
         }
 
-        // filterCounter++;
-        // filterCounter = filterCounter % smoothingNumber;
-
+        // 20 ms delay
         OSA_TimeDelay(delay1);
     }
 
+    // Find the active axis by finding the axis with the greatest variation between minimum and maximum
     if (((maxX - minX) >= (maxY - minY)) && ((maxX - minX) >= (maxZ - minZ)))
     {
         activeAxis = 1;
@@ -113,10 +110,13 @@ void pedometer()
         activeAxis = 3;
         threshold = (maxZ + minZ)/2;
     }
+
+    //  Find the offset acceleration for each axis
     X_avg = tempXSum/numReadings;
     Y_avg = tempYSum/numReadings;
     Z_avg = tempZSum/numReadings;
 
+    //Assign the previous sample
     getSensorDataMMA8451Q(acceleration);
     X_acc_Prev = acceleration[0];
     Y_acc_Prev = acceleration[1];
@@ -124,9 +124,6 @@ void pedometer()
 
     while (1)
     {
-        tempXSum = 0;
-        tempYSum = 0;
-        tempZSum = 0;
         for (uint8_t i=0; i<numReadings; i++)
         {
             // Read sensor data
@@ -140,6 +137,7 @@ void pedometer()
             Y_acc = movingAverage(arrNumbersY, &sumY, filterCounter, smoothingNumber, tempY);
             Z_acc = movingAverage(arrNumbersZ, &sumZ, filterCounter, smoothingNumber, tempZ);
 
+            // In the first loop, set the minimum and maximum acceleration as the current sample
             if (i==0)
             {
                 maxX = X_acc;
@@ -152,10 +150,8 @@ void pedometer()
 
             // SEGGER_RTT_printf(0, "%d, %d, %d, %d, %d, %d \n", X_acc, Y_acc, Z_acc, tempX, tempY, tempZ);
 
-            tempXSum += X_acc;
-            tempYSum += Y_acc;
-            tempZSum += Z_acc;
-
+            // Assign the minimum and maximum acceleration for each axis
+            // If the current sample is the minimum or maximum, update the minimum or maximum
             if (X_acc >= maxX)
             {
                 maxX = X_acc;
@@ -181,55 +177,56 @@ void pedometer()
                 minZ = Z_acc;
             }
 
+            // Update the index for the moving avergae filter
             filterCounter++;
             filterCounter = filterCounter % smoothingNumber;
 
+            // Based on the active axis, assign the current and previous sample to the variables that will be compared
             switch (activeAxis) {
                 case 1:
-                    average = (X_acc);  //+ X_acc[i-1])/2;
+                    average = (X_acc);
                     previous = X_acc_Prev;
                     break;
                 case 2:
-                    average = (Y_acc);//+ Y_acc[i-1])/2;
+                    average = (Y_acc);
                     previous = Y_acc_Prev;
                     break;
                 case 3:
-                    average = (Z_acc);// + Z_acc[i-1])/2;
+                    average = (Z_acc);
                     previous = Z_acc_Prev;
                     break;
                 default:
-                    average = (Z_acc);// + Z_acc[i-1])/2;
+                    average = (Z_acc);
                     previous = Z_acc_Prev;
                     break;
             }
 
-            // SEGGER_RTT_printf(0, "%d, %d, %d, %d, %d \n", X_acc, Y_acc, Z_acc, activeAxis, threshold);
+            SEGGER_RTT_printf(0, "%d, %d, %d, %d, %d, %d \n", X_acc, Y_acc, Z_acc, activeAxis, threshold, steps);
 
-            // if (average > threshold && flag==false && abs((average - previous)>50))
-            if ((previous > threshold) && (threshold > average) && (abs(average - previous)>100))
+            // If the current sample crosses the threshold on a negative gradient, increment the step counter
+            if ((previous > threshold) && (threshold > average) && (abs(average - previous)>200))
             {
                 steps=steps+1;
-                flag=true;
-                // uint16_t prevVal = getCurrentDisplay();
-                // display(steps, prevVal);
-                SEGGER_RTT_printf(0, "Steps: %d \n", steps);
+                uint16_t prevVal = getCurrentDisplay();
+                display(steps, prevVal);
             }
-            // Only once the step has ended, allow another step to start
-            // if (average < threshold  && flag==true)
-            // {
-            //     flag = false;
-            //     // SEGGER_RTT_printf(0, "Steps: %d\n", steps);
-            //     uint16_t prevVal = getCurrentDisplay();
-            //     display(steps, prevVal);
-            // }
 
-            OSA_TimeDelay(delay1);
+            // Shorter time delay for the last loop to compensate for the extra operations
+            if (i==(numReadings-1))
+            {
+                OSA_TimeDelay(delay2);
+            }
+            else
+                OSA_TimeDelay(delay1);
+
+            // Assign the previous accelerations for the next loop
             X_acc_Prev = X_acc;
             Y_acc_Prev = Y_acc;
             Z_acc_Prev = Z_acc;
 
         }
 
+        // Find the active axis by finding the axis with the greatest variation between minimum and maximum
         if (((maxX - minX) >= (maxY - minY)) && ((maxX - minX) >= (maxZ - minZ)))
         {
             activeAxis = 1;
