@@ -42,4 +42,4 @@ Other files that were edited include:
 ### Documentation
 - [Documentation][Documentation]: Contains the project report and appendices. 
   - [Documentation/Appendices.pdf]: Contains the circuit diagram andphotographs of the hardware
-- [Images][Images]: Contains the images displayed in the README
+- [Images](https://github.com/kayjayB/Warp-firmware/tree/master/Images): Contains the images displayed in the README
