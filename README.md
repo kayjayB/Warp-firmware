@@ -15,7 +15,7 @@ The circuit diagram for the pedometer is provided below.
 ![Circuit Diagram](Images/circuitDiagram.png)
 
 An image of the final device implementation is provided below.
-![Photograph of final device](Images/Device_Top.jpg)
+![Photograph of final device](Images/Device_Top.png)
 
 ## Layout of the repository
 
