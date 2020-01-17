@@ -18,6 +18,8 @@ An image of the final device implementation is provided below.
 ![Photograph of final device](Images/Device_Top.jpg)
 
 ## Layout of the repository
+
+### Firmware
 All of the edited firmware lies in  `src/boot/ksdk1.1.0/`. The files that were edited are as follows:
 - devSSD1331.h
 - devSSD1331.c
@@ -36,3 +38,8 @@ Other files that were edited include:
 
 - `tools/scripts/jlink.commands`: Changed path to firmware
 - `build/build.sh`: Added pedometer files to build script and removed files for other sensors
+
+### Documentation
+- [Documentation][Documentation]: Contains the project report and appendices. 
+  - [Documentation/Appendices.pdf]: Contains the circuit diagram andphotographs of the hardware
+- [Images][Images]: Contains the images displayed in the README
