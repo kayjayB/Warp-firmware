@@ -3,12 +3,12 @@
 ### Magdalene College
 
 ## Project Overview
-This repository presents a digital pedometer implemented on the FRDMKL03 board using the Warp firmware. The pedometer uses the MMA8451Q digital three axis accelerometerto obtain acceleration data. The resultant step count is printed onto an OLED display.
+This repository presents a digital pedometer implemented on the FRDMKL03 board using the Warp firmware. The pedometer uses the MMA8451Q digital three axis accelerometer to obtain acceleration data. The resultant step count is printed onto an OLED display.
 
 The overall system block diagram is as follows:
 ![Block Diagram](Images/Pedometer.png)
 
-A flowchart for the algorothm used to identify steps is given below.
+A flowchart for the algorithm used to identify steps is given below.
 ![Pedometer algorithm](Images/StepCounter.png)
 
 The circuit diagram for the pedometer is provided below.
@@ -18,6 +18,8 @@ An image of the final device implementation is provided below.
 ![Photograph of final device](Images/Device_Top.jpg)
 
 ## Layout of the repository
+
+### Firmware
 All of the edited firmware lies in  `src/boot/ksdk1.1.0/`. The files that were edited are as follows:
 - devSSD1331.h
 - devSSD1331.c
@@ -36,3 +38,8 @@ Other files that were edited include:
 
 - `tools/scripts/jlink.commands`: Changed path to firmware
 - `build/build.sh`: Added pedometer files to build script and removed files for other sensors
+
+### Documentation
+- [Documentation][Documentation]: Contains the project report and appendices. 
+  - [Documentation/Appendices.pdf]: Contains the circuit diagram andphotographs of the hardware
+- [Images][Images]: Contains the images displayed in the README
