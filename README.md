@@ -41,5 +41,6 @@ Other files that were edited include:
 
 ### Documentation
 - [Documentation](https://github.com/kayjayB/Warp-firmware/tree/master/Documentation): Contains the project report and appendices. 
-  - [Appendices.pdf](https://github.com/kayjayB/Warp-firmware/blob/master/Documentation/Appendices.pdf): Contains the circuit diagram andphotographs of the hardware
+  - [Design and Implementation of a Three Axis Digital Pedometer.pdf](https://github.com/kayjayB/Warp-firmware/blob/master/Documentation/Design%20and%20Implementation%20of%20a%20Three%20Axis%20Digital%20Pedometer.pdf): Project Report
+  - [Appendices.pdf](https://github.com/kayjayB/Warp-firmware/blob/master/Documentation/Appendices.pdf): Contains the circuit diagram and photographs of the hardware
 - [Images](https://github.com/kayjayB/Warp-firmware/tree/master/Images): Contains the images displayed in the README
